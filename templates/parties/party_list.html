@@ -1,0 +1,37 @@
+{% extends "base/base.html" %}
+{% block title %}Kontragentlar{% endblock %}
+{% block page_title %}Mijoz / Yetkazib beruvchilar{% endblock %}
+{% block content %}
+<div class="row g-3">
+    <div class="col-md-5">
+        <div class="card-panel">
+            <h5>Yangi kontragent</h5>
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                </div>
+                {% endfor %}
+                <button class="btn btn-primary w-100"><i class="fa-solid fa-plus"></i> Qo'shish</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="card-panel">
+            <h5>Ro'yxat</h5>
+            <table class="table table-clean mb-0">
+                <thead><tr><th>Nomi</th><th>Turi</th><th>Telefon</th><th>Valyuta</th></tr></thead>
+                <tbody>
+                {% for p in parties %}
+                    <tr><td>{{ p.name }}</td><td>{{ p.get_type_display }}</td><td>{{ p.phone|default:"-" }}</td><td>{{ p.default_currency }}</td></tr>
+                {% empty %}
+                    <tr><td colspan="4" class="text-muted text-center py-3">Kontragent yo'q</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

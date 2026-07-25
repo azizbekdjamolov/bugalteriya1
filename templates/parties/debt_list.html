@@ -1,0 +1,51 @@
+{% extends "base/base.html" %}
+{% block title %}Debitor / Kreditor{% endblock %}
+{% block page_title %}Debitor va Kreditor qarzdorlik{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <a href="{% url 'parties:party_list' %}" class="btn btn-outline-secondary"><i class="fa-solid fa-address-book"></i> Kontragentlar</a>
+    <div class="d-flex gap-2">
+        <a href="{% url 'reports:export_debts_excel' %}" class="btn btn-outline-success"><i class="fa-solid fa-file-excel"></i> Excel</a>
+        <a href="{% url 'parties:debt_create' %}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Yangi qarzdorlik</a>
+    </div>
+</div>
+
+<div class="card-panel mb-3">
+    <form method="get" class="row g-2">
+        <div class="col-md-3">{{ filter_form.q }}</div>
+        <div class="col-md-3">{{ filter_form.direction }}</div>
+        <div class="col-md-3">{{ filter_form.status }}</div>
+        <div class="col-md-3">{{ filter_form.currency }}</div>
+        <div class="col-12"><button class="btn btn-outline-primary btn-sm mt-1"><i class="fa-solid fa-filter"></i> Filtrlash</button></div>
+    </form>
+</div>
+
+<div class="card-panel">
+    <div class="table-responsive">
+        <table class="table table-clean mb-0">
+            <thead><tr><th>Kontragent</th><th>Yo'nalishi</th><th>Summa</th><th>To'langan</th><th>Qolgan</th><th>Muddat</th><th>Holati</th><th></th></tr></thead>
+            <tbody>
+            {% for d in page_obj %}
+                <tr>
+                    <td>{{ d.party.name }}</td>
+                    <td>{{ d.get_direction_display }}</td>
+                    <td>{{ d.amount|floatformat:0 }} {{ d.currency }}</td>
+                    <td>{{ d.paid_amount|floatformat:0 }}</td>
+                    <td><strong>{{ d.remaining_amount|floatformat:0 }}</strong></td>
+                    <td>{{ d.due_date }}</td>
+                    <td><span class="status-badge status-{{ d.status }}">{{ d.get_status_display }}</span></td>
+                    <td class="text-end">
+                        <a href="{% url 'parties:debt_update' d.pk %}" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-pen"></i></a>
+                        <a href="{% url 'parties:debt_delete' d.pk %}" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="8" class="text-muted text-center py-3">Qarzdorlik topilmadi</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% include "base/_pagination.html" %}
+</div>
+{% endblock %}

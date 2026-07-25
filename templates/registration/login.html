@@ -1,0 +1,29 @@
+{% extends "base/base.html" %}
+{% block title %}Kirish - Buxgalteriya Tizimi{% endblock %}
+{% block guest_content %}
+<div class="login-wrapper">
+    <div class="login-box">
+        <div class="brand">
+            <i class="fa-solid fa-briefcase"></i>
+            <h3>Buxgalteriya Tizimi</h3>
+            <p class="text-muted" style="font-size:.85rem;">Tizimga kirish uchun login va parolni kiriting</p>
+        </div>
+        {% if form.errors %}
+            <div class="alert alert-danger">Login yoki parol noto'g'ri kiritildi.</div>
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Login</label>
+                <input type="text" name="username" class="form-control" required autofocus>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Parol</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 py-2 mt-2">Kirish</button>
+            <input type="hidden" name="next" value="{{ next }}">
+        </form>
+    </div>
+</div>
+{% endblock %}

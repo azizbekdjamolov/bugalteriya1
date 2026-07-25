@@ -1,0 +1,13 @@
+{% extends "base/base.html" %}
+{% block title %}O'chirish{% endblock %}
+{% block page_title %}Tasdiqlash{% endblock %}
+{% block content %}
+<div class="card-panel form-card">
+    <p>Haqiqatan ham <strong>"{{ object }}"</strong> yozuvini o'chirmoqchimisiz?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Ha, o'chirish</button>
+        <a href="javascript:history.back()" class="btn btn-outline-secondary">Bekor qilish</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+# Render.com uchun "Infrastructure as Code" fayli.
+# Render Dashboard -> New -> Blueprint -> ushbu repo'ni tanlang.
+services:
+  - type: web
+    name: buxgalteriya-tizimi
+    runtime: python
+    plan: starter
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput"
+    startCommand: "gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 3"
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_SSLMODE
+        value: "require"
+
+  # Har kuni qarzdorlik eslatmalarini yuboradigan Cron Job
+  - type: cron
+    name: qarz-eslatmalari
+    runtime: python
+    schedule: "0 4 * * *"
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python manage.py send_debt_reminders"
+    envVars:
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "5432"
+
+  # Har kuni Markaziy bank valyuta kurslarini yangilaydigan Cron Job
+  - type: cron
+    name: valyuta-kurslari
+    runtime: python
+    schedule: "0 2 * * *"
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python manage.py fetch_currency_rates"
+    envVars:
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "5432"

@@ -1,0 +1,27 @@
+{% extends "base/base.html" %}
+{% block title %}Bildirishnomalar{% endblock %}
+{% block page_title %}Bildirishnomalar{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-end mb-3">
+    <a href="{% url 'notifications:mark_all_read' %}" class="btn btn-outline-secondary btn-sm">Barchasini o'qilgan deb belgilash</a>
+</div>
+<div class="card-panel">
+    {% for n in notifications %}
+    <div class="d-flex align-items-start gap-3 py-3" style="border-bottom:1px solid var(--border); {% if not n.is_read %}background:#f8faff;{% endif %}">
+        <span class="status-badge status-{{ n.level }}" style="min-width:80px;text-align:center;">
+            {% if n.level == 'red' %}🔴{% elif n.level == 'orange' %}🟠{% elif n.level == 'yellow' %}🟡{% else %}🟢{% endif %}
+        </span>
+        <div class="flex-fill">
+            <div style="font-weight:600;">{{ n.title }}</div>
+            <div class="text-muted" style="font-size:.87rem;">{{ n.message }}</div>
+            <div class="text-muted" style="font-size:.75rem;">{{ n.created_at }}</div>
+        </div>
+        {% if not n.is_read %}
+        <a href="{% url 'notifications:mark_read' n.pk %}" class="btn btn-sm btn-outline-secondary">O'qildi</a>
+        {% endif %}
+    </div>
+    {% empty %}
+    <p class="text-muted text-center py-4">Bildirishnomalar yo'q</p>
+    {% endfor %}
+</div>
+{% endblock %}

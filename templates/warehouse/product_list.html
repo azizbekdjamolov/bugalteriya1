@@ -1,0 +1,34 @@
+{% extends "base/base.html" %}
+{% block title %}Ombor{% endblock %}
+{% block page_title %}Ombor - Mahsulotlar{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-end gap-2 mb-3">
+    <a href="/admin/warehouse/stockmovement/add/" class="btn btn-outline-primary"><i class="fa-solid fa-right-left"></i> Kirim/Chiqim</a>
+    <a href="/admin/warehouse/product/add/" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Yangi mahsulot</a>
+</div>
+<div class="card-panel">
+    <table class="table table-clean mb-0">
+        <thead><tr><th>Nomi</th><th>O'lchov birligi</th><th>Qoldiq</th><th>Minimal qoldiq</th><th>Narxi</th><th>Holati</th></tr></thead>
+        <tbody>
+        {% for p in products %}
+            <tr>
+                <td>{{ p.name }}</td>
+                <td>{{ p.unit }}</td>
+                <td>{{ p.quantity }}</td>
+                <td>{{ p.min_quantity }}</td>
+                <td>{{ p.price|floatformat:0 }}</td>
+                <td>
+                    {% if p.is_low_stock %}
+                        <span class="status-badge status-overdue">Kam qoldiq!</span>
+                    {% else %}
+                        <span class="status-badge status-active">Yetarli</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="6" class="text-muted text-center py-3">Mahsulot yo'q</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

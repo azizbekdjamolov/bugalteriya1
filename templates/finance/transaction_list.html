@@ -1,0 +1,56 @@
+{% extends "base/base.html" %}
+{% block title %}Daromad / Xarajat{% endblock %}
+{% block page_title %}Daromad va xarajatlar{% endblock %}
+{% block content %}
+
+<div class="row g-3 mb-3">
+    <div class="col-6 col-md-3">
+        <div class="stat-card"><div class="stat-label">Jami daromad</div><div class="stat-value" style="color:var(--green);">{{ totals.income|default:0|floatformat:0 }}</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card"><div class="stat-label">Jami xarajat</div><div class="stat-value" style="color:var(--red);">{{ totals.expense|default:0|floatformat:0 }}</div></div>
+    </div>
+    <div class="col-12 col-md-6 d-flex align-items-center justify-content-end gap-2">
+        <a href="{% url 'finance:categories' %}" class="btn btn-outline-secondary"><i class="fa-solid fa-tags"></i> Kategoriyalar</a>
+        <a href="{% url 'finance:create' %}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Yangi operatsiya</a>
+    </div>
+</div>
+
+<div class="card-panel mb-3">
+    <form method="get" class="row g-2">
+        <div class="col-md-4">{{ filter_form.q }}</div>
+        <div class="col-md-2">{{ filter_form.type }}</div>
+        <div class="col-md-2">{{ filter_form.category }}</div>
+        <div class="col-md-2">{{ filter_form.date_from }}</div>
+        <div class="col-md-2">{{ filter_form.date_to }}</div>
+        <div class="col-12"><button class="btn btn-outline-primary btn-sm mt-1"><i class="fa-solid fa-filter"></i> Filtrlash</button></div>
+    </form>
+</div>
+
+<div class="card-panel">
+    <div class="table-responsive">
+        <table class="table table-clean mb-0">
+            <thead><tr><th>Sana</th><th>Turi</th><th>Kategoriya</th><th>Summa</th><th>Izoh</th><th>Fayl</th><th></th></tr></thead>
+            <tbody>
+            {% for t in page_obj %}
+                <tr>
+                    <td>{{ t.date }}</td>
+                    <td>{% if t.type == 'income' %}<span class="badge-income">Daromad</span>{% else %}<span class="badge-expense">Xarajat</span>{% endif %}</td>
+                    <td>{{ t.category.name }}</td>
+                    <td>{{ t.amount|floatformat:0 }} {{ t.currency }}</td>
+                    <td>{{ t.description|default:"-" }}</td>
+                    <td>{% if t.attachment %}<a href="{{ t.attachment.url }}" target="_blank"><i class="fa-solid fa-paperclip"></i></a>{% else %}-{% endif %}</td>
+                    <td class="text-end">
+                        <a href="{% url 'finance:update' t.pk %}" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-pen"></i></a>
+                        <a href="{% url 'finance:delete' t.pk %}" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="7" class="text-muted text-center py-3">Ma'lumot topilmadi</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% include "base/_pagination.html" %}
+</div>
+{% endblock %}

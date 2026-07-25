@@ -1,0 +1,49 @@
+{% extends "base/base.html" %}
+{% block title %}Hisobotlar{% endblock %}
+{% block page_title %}Hisobotlar{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div class="btn-group">
+        <a href="?period=daily" class="btn btn-outline-primary {% if period == 'daily' %}active{% endif %}">Kunlik</a>
+        <a href="?period=weekly" class="btn btn-outline-primary {% if period == 'weekly' %}active{% endif %}">Haftalik</a>
+        <a href="?period=monthly" class="btn btn-outline-primary {% if period == 'monthly' %}active{% endif %}">Oylik</a>
+        <a href="?period=yearly" class="btn btn-outline-primary {% if period == 'yearly' %}active{% endif %}">Yillik</a>
+    </div>
+    <a href="{% url 'reports:export_excel' %}?period={{ period }}" class="btn btn-outline-success"><i class="fa-solid fa-file-excel"></i> Excel yuklab olish</a>
+</div>
+
+<p class="text-muted">Davr: {{ start }} — {{ end }}</p>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-4"><div class="stat-card"><div class="stat-label">Daromad</div><div class="stat-value" style="color:var(--green);">{{ income|floatformat:0 }}</div></div></div>
+    <div class="col-md-4"><div class="stat-card"><div class="stat-label">Xarajat</div><div class="stat-value" style="color:var(--red);">{{ expense|floatformat:0 }}</div></div></div>
+    <div class="col-md-4"><div class="stat-card"><div class="stat-label">Sof foyda</div><div class="stat-value">{{ net|floatformat:0 }}</div></div></div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card-panel">
+            <h5>Kategoriyalar bo'yicha</h5>
+            <table class="table table-clean mb-0">
+                <thead><tr><th>Kategoriya</th><th>Turi</th><th>Summa</th></tr></thead>
+                <tbody>
+                {% for c in by_category %}
+                    <tr><td>{{ c.category__name }}</td><td>{{ c.type }}</td><td>{{ c.total|floatformat:0 }}</td></tr>
+                {% empty %}
+                    <tr><td colspan="3" class="text-muted text-center py-3">Ma'lumot yo'q</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card-panel">
+            <h5>Qarzdorlik holati</h5>
+            <p>Faol debitor qarzlar soni: <strong>{{ debitor_count }}</strong></p>
+            <p>Faol kreditor qarzlar soni: <strong>{{ kreditor_count }}</strong></p>
+            <a href="{% url 'reports:export_debts_excel' %}" class="btn btn-outline-success btn-sm"><i class="fa-solid fa-file-excel"></i> Qarzdorlik hisobotini yuklash</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

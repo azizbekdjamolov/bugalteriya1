@@ -1,0 +1,134 @@
+{% extends "base/base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Bosh sahifa{% endblock %}
+{% block content %}
+
+<div class="row g-3 mb-2">
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon icon-green"><i class="fa-solid fa-arrow-trend-up"></i></div>
+            <div class="stat-label">Bugungi daromad</div>
+            <div class="stat-value">{{ todays_income|floatformat:0 }} <small class="text-muted" style="font-size:.8rem;">UZS</small></div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon icon-red"><i class="fa-solid fa-arrow-trend-down"></i></div>
+            <div class="stat-label">Bugungi xarajat</div>
+            <div class="stat-value">{{ todays_expense|floatformat:0 }} <small class="text-muted" style="font-size:.8rem;">UZS</small></div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon icon-blue"><i class="fa-solid fa-sack-dollar"></i></div>
+            <div class="stat-label">Sof foyda (bugun)</div>
+            <div class="stat-value">{{ net_profit_today|floatformat:0 }} <small class="text-muted" style="font-size:.8rem;">UZS</small></div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon icon-orange"><i class="fa-solid fa-coins"></i></div>
+            <div class="stat-label">Valyuta kurslari</div>
+            <div class="stat-value" style="font-size:1rem;">
+                {% for r in rates %}<div>{{ r.currency_code }}: {{ r.rate }}</div>{% empty %}<span class="text-muted" style="font-size:.85rem;">Ma'lumot yo'q</span>{% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-2">
+    <div class="col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon icon-blue"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+            <div class="stat-label">Debitor qarzdorlik (bizga qarzdor)</div>
+            <div class="stat-value">{{ debitor_total|floatformat:0 }}</div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon icon-red"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+            <div class="stat-label">Kreditor qarzdorlik (biz qarzdormiz)</div>
+            <div class="stat-value">{{ kreditor_total|floatformat:0 }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-lg-7">
+        <div class="card-panel">
+            <h5>Daromad va xarajat dinamikasi (14 kun)</h5>
+            <canvas id="mainChart" height="110"></canvas>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card-panel h-100">
+            <h5>To'lanishi kerak bo'lgan qarzlar (7 kun ichida)</h5>
+            {% for d in upcoming_debts %}
+            <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom:1px solid var(--border);">
+                <div>
+                    <div style="font-weight:600;font-size:.9rem;">{{ d.party.name }}</div>
+                    <div class="text-muted" style="font-size:.78rem;">{{ d.due_date }} • {{ d.get_direction_display }}</div>
+                </div>
+                <div class="text-end">
+                    <div style="font-weight:700;">{{ d.remaining_amount|floatformat:0 }} {{ d.currency }}</div>
+                    <span class="status-badge status-{{ d.status }}">{{ d.get_status_display }}</span>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-muted">Hozircha yaqin muddatli qarzlar yo'q.</p>
+            {% endfor %}
+
+            {% if overdue_debts %}
+            <h5 class="mt-4" style="color:var(--red);">Muddati o'tgan qarzlar</h5>
+            {% for d in overdue_debts %}
+            <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom:1px solid var(--border);">
+                <div style="font-weight:600;font-size:.9rem;">{{ d.party.name }}</div>
+                <div style="font-weight:700;color:var(--red);">{{ d.remaining_amount|floatformat:0 }} {{ d.currency }}</div>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="card-panel">
+    <h5>Oxirgi operatsiyalar</h5>
+    <div class="table-responsive">
+        <table class="table table-clean mb-0">
+            <thead><tr><th>Sana</th><th>Turi</th><th>Kategoriya</th><th>Summa</th><th>Izoh</th><th>Kim kiritdi</th></tr></thead>
+            <tbody>
+            {% for t in last_transactions %}
+                <tr>
+                    <td>{{ t.date }}</td>
+                    <td>{% if t.type == 'income' %}<span class="badge-income">Daromad</span>{% else %}<span class="badge-expense">Xarajat</span>{% endif %}</td>
+                    <td>{{ t.category.name }}</td>
+                    <td>{{ t.amount|floatformat:0 }} {{ t.currency }}</td>
+                    <td>{{ t.description|default:"-" }}</td>
+                    <td>{{ t.created_by }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6" class="text-muted text-center py-3">Hozircha operatsiyalar yo'q</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+new Chart(document.getElementById('mainChart'), {
+    type: 'line',
+    data: {
+        labels: {{ chart_labels|safe }},
+        datasets: [
+            { label: 'Daromad', data: {{ chart_income|safe }}, borderColor: '#1aa053', backgroundColor: 'rgba(26,160,83,.08)', tension: .35, fill: true },
+            { label: 'Xarajat', data: {{ chart_expense|safe }}, borderColor: '#e0403f', backgroundColor: 'rgba(224,64,63,.08)', tension: .35, fill: true }
+        ]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+});
+</script>
+{% endblock %}
