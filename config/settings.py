@@ -81,15 +81,16 @@ ASGI_APPLICATION = 'config.asgi.application'
 # .env faylida DATABASE_URL yoki alohida parametrlarni ko'rsating
 # ------------------------------------------------------------------
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', default='postgres'),
-        'USER': config('DB_USER', default='postgres'),
-        'PASSWORD': config('DB_PASSWORD', default=''),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='5432'),
-        'CONN_MAX_AGE': 600,
-        'OPTIONS': {'sslmode': config('DB_SSLMODE', default='require')},
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config("DB_NAME"),
+        "USER": config("DB_USER"),
+        "PASSWORD": config("DB_PASSWORD"),
+        "HOST": config("DB_HOST"),
+        "PORT": config("DB_PORT"),
+        "OPTIONS": {
+            "sslmode": config("DB_SSLMODE", default="disable"),
+        },
     }
 }
 

@@ -19,11 +19,21 @@ def dashboard(request):
     todays_expense = Transaction.objects.filter(type=Transaction.Type.EXPENSE, date=today).aggregate(s=Sum('amount'))['s'] or Decimal(0)
     net_profit_today = todays_income - todays_expense
 
-    debitor_total = Debt.objects.filter(direction=Debt.Direction.DEBITOR).exclude(status=Debt.Status.CLOSED).aggregate(
-        s=Sum('remaining_amount'))
-    debitor_total = _sum_remaining(Debt.objects.filter(direction=Debt.Direction.DEBITOR).exclude(status=Debt.Status.CLOSED))
-    kreditor_total = _sum_remaining(Debt.objects.filter(direction=Debt.Direction.KREDITOR).exclude(status=Debt.Status.CLOSED))
+    debitor_total = _sum_remaining(
+    Debt.objects.filter(
+        direction=Debt.Direction.DEBITOR
+    ).exclude(
+        status=Debt.Status.CLOSED
+    )
+)
 
+    kreditor_total = _sum_remaining(
+        Debt.objects.filter(
+            direction=Debt.Direction.KREDITOR
+        ).exclude(
+            status=Debt.Status.CLOSED
+        )
+    )
     upcoming_debts = Debt.objects.exclude(status=Debt.Status.CLOSED).filter(
         due_date__gte=today, due_date__lte=today + timedelta(days=7)
     ).order_by('due_date')[:10]
